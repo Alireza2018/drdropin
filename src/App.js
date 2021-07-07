@@ -1,25 +1,69 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import withClinics, { ClinicCard } from "./components/Clinic";
+import {
+  GlobalStyle,
+  HeaderContainer,
+  PageHeader,
+  MainContainer,
+  ClinicsWrapper,
+  H2,
+  ClinicsHeader
+} from "./components/Layout";
+import Button from "./components/Button";
+import Logo from "./components/Logo";
 
-function App() {
+const App = ({
+  error,
+  clinics,
+  isLoading,
+  handleClinicsRetry,
+  ...props
+}) => {
+
+  useEffect(() => {
+    document.title = "Dr.Dropin | Alle Klinikker"
+  })
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <React.Fragment>
+      <HeaderContainer>
+        <PageHeader>
+          <Logo />
+        </PageHeader>
+      </HeaderContainer>
+      <MainContainer>
+        <GlobalStyle />
+        {isLoading && <div>Laster innhold ...</div>}
+        {
+          error ?
+            <div>
+              Kan ikke få klinikker&nbsp;&nbsp;
+              <Button onClick={handleClinicsRetry}>Prøv igjen</Button>
+            </div>
+            :
+            <ClinicsWrapper>
+              {
+                (clinics.length > 1 && !isLoading) && (
+                  <React.Fragment>
+                    <ClinicsHeader>
+                      <H2>{`Alle Klinikker (${clinics.length})`}</H2>
+                      <Button onClick={handleClinicsRetry}>forfriske</Button>
+                    </ClinicsHeader>
+                    {clinics.map((clinic, i) => (
+                      <ClinicCard
+                        key={i}
+                        clinicName={clinic.name}
+                        openingHours={clinic.openingHours}
+                      />
+                    ))}
+                  </React.Fragment>
+                )
+              }
+            </ClinicsWrapper>
+        }
+      </MainContainer>
+    </React.Fragment>
   );
 }
 
-export default App;
+export default withClinics(App);
